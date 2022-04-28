@@ -1,4 +1,4 @@
-# CadastroEstoqueInventario
+# Cadastro Estoque Inventario
 Esta planilha feita em VBA tem como objetivo o cadastro fácil de produtos em um estoque ou inventário.
 O programa funciona de maneira a facilitar o trabalho de pessoas para o cadastro, deixando as informações sensíveis
 (Valores e Custos) para serem cadastradas posteriormente pelas pessoas responsáveis.
