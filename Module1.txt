@@ -1,0 +1,86 @@
+Sub Cadastro_Clique()
+    CadastroProduto.Show
+End Sub
+
+
+Sub Editar_Clique()
+    EditarProduto.Show
+End Sub
+
+
+Public Function CadastroFunc(ByVal categoria As String, ByVal nomeProd As String, ByVal Quant As String, ByVal loc As String, ByVal linha As Integer, Optional ByVal obs As String = "", Optional ByVal excluido As Boolean = False)
+        Sheets(categoria).Select
+        On Error Resume Next
+        If Not excluido Then Codigo = UCase(Left(categoria, 3)) & CStr(linha - 1)
+        If excluido Then Codigo = UCase(Left(categoria, 3)) & CStr(linha)
+        If excluido Then
+            linha = linha + 1
+            Rows(linha).Insert
+        End If
+        Cells(linha, 1) = Codigo
+        Cells(linha, 2) = StrConv(nomeProd, vbProperCase)
+        Cells(linha, 3) = Quant
+        Cells(linha, 4) = StrConv(loc, vbProperCase)
+        If obs <> "" Then
+            Cells(linha, 5) = StrConv(obs, vbProperCase)
+        End If
+End Function
+
+Public Sub ThrowError(str)
+    MsgBox (str)
+End Sub
+
+Public Function CadastrarCusto(ByVal custo As Currency, ByVal linha As Integer)
+    Desproteger
+    Cells(linha, 6) = custo
+    Cells(linha, 7) = FormatCurrency(custo * Cells(linha, 3))
+    Proteger
+End Function
+
+Public Function CadastrarLocacao(ByVal Locacao As Currency, ByVal linha As Integer)
+    Desproteger
+    Cells(linha, 8) = Locacao
+    Proteger
+End Function
+
+Public Sub BtnAtualizarValores()
+    AtualizarValores.Show
+End Sub
+
+Public Sub Proteger()
+    ActiveSheet.Range("A1:H1").EntireColumn.Locked = True
+    ActiveSheet.Protect
+End Sub
+
+Public Sub Desproteger()
+    ActiveSheet.Unprotect
+    ActiveSheet.Range("A1:H1").EntireColumn.Locked = False
+End Sub
+
+Public Function VerificarExcluido(Cell1) As Integer
+    If IsEmpty(Cell1) Then VerificarExcluido = VerificarExcluido
+    If Cell1 = True Then
+        VerificarExcluido = VerificarExcluido(Cells(Cell1.Row, Cell1.Column + 1)) + 1
+    End If
+End Function
+
+Public Sub atualizarExcluidos()
+    excluidos = VerificarExcluido(Cells(1, 27))
+    For i = 0 To excluidos
+        RemoverExcluidos
+    Next i
+    For i = 2 To Range("A1048576").End(xlUp).Row - 1
+        diff = CInt(Right(Cells(i + 1, 1), Len(Cells(i + 1, 1)) - 3)) - CInt(Right(Cells(i, 1), Len(Cells(i, 1)) - 3))
+        If diff > 1 Then
+            AdicionarExcluidos
+        End If
+    Next i
+End Sub
+
+Public Sub AdicionarExcluidos()
+    Cells(1, 27 + VerificarExcluido(Cells(1, 27))) = True
+End Sub
+
+Public Sub RemoverExcluidos()
+    Cells(1, 27 + VerificarExcluido(Cells(1, 27)) - 1).Clear
+End Sub

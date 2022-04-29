@@ -1,0 +1,95 @@
+Private Sub RespostaObs_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyReturn Then Call Cadastrar_Click
+    If KeyCode = vbKeyEscape Then
+        Proteger
+        Unload Me
+    End If
+End Sub
+
+Private Sub UserForm_Initialize()
+    
+    Dim Lista() As String
+    ReDim Lista(Sheets.Count - 2)
+    Dim l
+    l = 0
+    
+    
+    
+    For i = 1 To Sheets.Count
+    
+        If Sheets(i).Name <> "Estoque Geral" Then
+            
+            Lista(l) = Sheets(i).Name
+            l = l + 1
+            
+        End If
+    
+    Next i
+    
+    
+    Categorias.List = Lista
+    Categorias.Value = ActiveSheet.Name
+    RespostaProduto.SetFocus
+End Sub
+
+Private Sub Cadastrar_Click()
+    
+        Desproteger
+    
+        Dim excluido As Boolean
+        Dim excluidos As Integer
+        Dim diff As Integer
+        Dim codigo1, codigo2 As Integer
+        Dim loc As String
+        Dim linha
+        
+        If Categorias.Value = "" Or RespostaQuant.Value = "" Or RespostaProduto.Value = "" Then
+            ThrowError ("Campo Vazio, por favor tente novamente")
+            GoTo fim
+        End If
+        
+        
+        
+        If Not IsNumeric(RespostaQuant.Value) Then ThrowError ("Um número deve ser fornecido para a quantidade, tente novamente")
+        
+        excluidos = VerificarExcluido(Cells(1, 27))
+        excluido = IIf(excluidos > 0, True, False)
+        
+        
+        Sheets(Categorias.Value).Select
+        
+        linha = Range("A1048576").End(xlUp).Row + 1
+        If RespostaLoc.Value = "" Then
+            loc = Cells(linha - 1, 4)
+        Else
+            loc = RespostaLoc.Value
+            
+        End If
+
+        
+        If excluido Then
+                For j = 2 To linha - 2
+                    If Not IsEmpty(Cells(j, 1)) Then
+                        diff = CInt(Right(Cells(j + 1, 1), 1)) - CInt(Right(Cells(j, 1), 1))
+                    Else
+                        ThrowError ("Célula vazia ou valor incompatível")
+                        GoTo fim
+                    End If
+                    If diff > 1 Then
+                        Call CadastroFunc(Categorias.Value, RespostaProduto.Value, RespostaQuant.Value, loc, j, "", True)
+                        RemoverExcluidos
+                        Exit For
+                    End If
+                Next j
+        Else
+            Call CadastroFunc(Categorias.Value, RespostaProduto.Value, RespostaQuant.Value, loc, linha, RespostaObs.Value)
+        End If
+    
+fim:
+    
+        Proteger
+
+        Unload Me
+            
+End Sub
+

@@ -1,0 +1,107 @@
+Private Sub Atualizar_Click()
+    Desproteger
+    Dim nome As String
+    Dim loc As String
+    Dim QuantS As String
+    Dim Quant As Integer
+    Dim Perda As Integer
+    Dim Compra As Integer
+    Dim Alvo As Integer
+    
+    Alvo = Produtos.ListIndex + 2
+    
+    If LocTB.Value <> "" Then
+        loc = LocTB.Value
+        Cells(Alvo, 4) = StrConv(loc, vbProperCase)
+    End If
+    If NomeTB.Value <> "" Then
+        nome = NomeTB.Value
+        Cells(Alvo, 2) = StrConv(nome, vbProperCase)
+    End If
+    If PerdaTB.Value <> "" Then
+        If IsNumeric(PerdaTB.Value) Then
+            QuantS = Cells(Alvo, 3)
+            Perda = CInt(PerdaTB.Value)
+            Quant = CInt(QuantS)
+            Cells(Alvo, 3) = CStr(Quant - Perda)
+            Cells(Alvo, 7) = FormatCurrency(Cells(Alvo, 3) * Cells(Alvo, 6))
+        Else
+            ThrowError ("Valor de Perda Incompatível")
+        End If
+    End If
+    If CompraTB.Value <> "" Then
+        If IsNumeric(CompraTB.Value) Then
+            QuantS = Cells(Alvo, 3)
+            Compra = CInt(CompraTB.Value)
+            Quant = CInt(QuantS)
+            Cells(Alvo, 3) = CStr(Quant + Compra)
+            Cells(Alvo, 7) = FormatCurrency(Cells(Alvo, 3) * Cells(Alvo, 6))
+        Else
+            ThrowError ("Valor de compra incompatível")
+        End If
+    End If
+    If ObsTB.Value <> "" Then
+        Cells(Alvo, 5) = ObsTB.Value
+    End If
+    
+    Proteger
+    
+    Unload Me
+    
+End Sub
+
+
+
+Private Sub Excluir_Click()
+    
+    Desproteger
+    
+    Dim Alvo As Integer
+    Dim excluidos As Integer
+    excluidos = VerificarExcluido(Cells(1, 27))
+    If excluidos >= 8 Then
+        ThrowError ("Impossível excluir mais de 8 elementos em sequência, por favor, adicione novos elementos ou edite-os")
+        GoTo fimEd
+    End If
+    Alvo = Produtos.ListIndex + 2
+    If Alvo = 2 Then
+        ThrowError ("Impossível excluir o primeiro elemento, edite-o ao invés disso")
+        GoTo fimEd
+    Else
+        Rows(Alvo).EntireRow.Delete
+        If Not Alvo = UBound(Produtos.List) + 2 Then
+            AdicionarExcluidos
+        Else
+            If excluidos > 0 Then
+                atualizarExcluidos
+            End If
+        End If
+    End If
+    
+fimEd:
+
+    Proteger
+    
+    Unload Me
+    
+End Sub
+
+
+Private Sub ObsTB_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyReturn Then Call Atualizar_Click
+    If KeyCode = vbKeyDelete Then Call Excluir_Click
+End Sub
+
+Private Sub UserForm_Initialize()
+    Dim Lista() As String
+    linha = Range("A1048576").End(xlUp).Row
+    ReDim Lista(linha - 2)
+    
+    For i = 2 To linha
+        Lista(i - 2) = Cells(i, 1) & " " & Cells(i, 2)
+    Next i
+    
+    Produtos.List = Lista
+    Produtos.ListIndex = 0
+End Sub
+

@@ -1,0 +1,55 @@
+    Dim Codigos() As String
+    Dim Produtos() As String
+    Dim Quantidades() As String
+    Dim Localizacoes() As String
+    Dim Custos() As String
+    Dim Locacao() As String
+    Dim ik As Integer
+
+Private Function updateLabels()
+    CodCad.Caption = Codigos(ik)
+    ProdCad.Caption = Produtos(ik)
+    QuantCad.Caption = Quantidades(ik)
+    LocCad.Caption = Localizacoes(ik)
+    CustUnCad.Caption = Custos(ik)
+    ValLocCad.Caption = Locacao(ik)
+End Function
+
+Private Sub BtnNext_Click()
+    linha = ik + 2
+    If RespostaValLoc.Value <> "" Then Call CadastrarLocacao(RespostaValLoc.Value, linha)
+    If RespostaCusUn.Value <> "" Then Call CadastrarCusto(RespostaCusUn.Value, linha)
+Add:
+    ik = ik + 1
+    If ik >= UBound(Codigos) Then Unload Me Else If IsEmpty(Custos(ik)) And IsEmpty(Locacao(ik)) Then GoTo Add
+    Call updateLabels
+    RespostaValLoc.Value = ClearContents
+    RespostaCusUn.Value = ClearContents
+    
+End Sub
+
+
+Private Sub UserForm_Initialize()
+    linha = Range("A1048576").End(xlUp).Row
+    ReDim Codigos(0 To linha - 1)
+    ReDim Produtos(0 To linha - 1)
+    ReDim Quantidades(0 To linha - 1)
+    ReDim Localizacoes(0 To linha - 1)
+    ReDim Custos(0 To linha - 1)
+    ReDim Locacao(0 To linha - 1)
+    ik = -1
+    
+    For i = 2 To linha
+        ix = i - 2
+        Codigos(ix) = Cells(i, 1)
+        Produtos(ix) = Cells(i, 2)
+        Quantidades(ix) = Cells(i, 3)
+        Localizacoes(ix) = Cells(i, 4)
+        Custos(ix) = Cells(i, 6)
+        Locacao(ix) = Cells(i, 8)
+    Next i
+Add:
+    ik = ik + 1
+    If IsEmpty(Custos(ik)) And IsEmpty(Locacao(ik)) Then GoTo Add
+    Call updateLabels
+End Sub
